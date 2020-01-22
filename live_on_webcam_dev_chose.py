@@ -420,7 +420,7 @@ class NetworkSystem:
 
     def start_network_loop(self):
         if activate_source_sender_result_receiver is False:
-            import api_communication
+            from emotions_recognition import api_communication
             api_communication.trigger_async_api_listener_loop(parent_networkSystem=self, channel_id=api_communication.CHANNEL_ID)
 
         if activate_source_receiver_result_sender is True:
