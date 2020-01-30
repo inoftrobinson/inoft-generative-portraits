@@ -30,8 +30,10 @@ class ThreadSaveImageSourceFromFtp(threading.Thread):
                 try:
                     all_files_and_folders_in_current_folder = list(self.ftp.nlst())
                     if "image_source_to_retrieve.jpg" in all_files_and_folders_in_current_folder:
+                        time_start_retrieve = time.time()
                         self.ftp.retrbinary("RETR " + "image_source_to_retrieve.jpg", open(self.temp_image_source_received_writing_filepath, "wb").write)
                         self.ftp.delete("image_source_to_retrieve.jpg")
+                        print(f"Delay to retrieve and delete the image source from the ftp : {time.time() - time_start_retrieve}s")
 
                         if os.path.isfile(self.temp_image_source_received_writing_filepath):
                             need_to_update_image = False
@@ -54,8 +56,11 @@ class ThreadSaveImageSourceFromFtp(threading.Thread):
                                 self.image_source_been_modified_and_not_yet_used = True
                                 self.count_received_images += 1
                                 print(f"The #{self.count_received_images} image source has been received.")
+
                 except Exception as error:
                     print(f"Error : {error}")
+                    self.ftp = ftp_factory.get_ftp()
+                    print(f"Save image source ftp client has been reinitialized")
 
             time.sleep(0.1)
 
@@ -100,18 +105,20 @@ class ThreadUploadGeneratedImage(threading.Thread):
                                 time_start_upload = time.time()
                                 self.ftp.storbinary("STOR " + "image_generated_writing.jpg", binary_image_file)
                                 self.count_send_generated_images += 1
-                                seconds_delay_upload = time.time() - time_start_upload
 
                                 self.ftp.rename("image_generated_writing.jpg", "image_generated_to_retrieve.jpg")
-                                print(f"Generated image {self.count_send_generated_images} has been fully uploaded and renamed in {seconds_delay_upload} seconds.")
+                                print(f"Generated image {self.count_send_generated_images} has been fully uploaded and renamed in {time.time() - time_start_upload} seconds.")
 
                                 self.last_modified_time_of_image_generated_to_send = current_file_last_modified_time
                                 self.new_generated_image_to_send_has_been_created = False
                                 self.last_generated_image_has_completed_its_upload = True
                         else:
                             raise Exception(f"No file was found at {self.temp_image_generated_to_send_filepath}")
+
                 except Exception as error:
                     print(f"Error : {error}")
+                    self.ftp = ftp_factory.get_ftp()
+                    print(f"Upload generated image ftp client has been reinitialized")
 
             time.sleep(0.1)
 

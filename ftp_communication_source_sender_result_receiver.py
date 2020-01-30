@@ -24,26 +24,32 @@ class ThreadUploadImageSourceFromWebcam(threading.Thread):
         self.seconds_interval_to_wait_before_sends = 0.25
 
     def run(self):
-        time_last_send_image = 0
         while True:
-            all_files_and_folders_in_current_folder = list(self.ftp.nlst())
-            if "image_source_to_retrieve.jpg" not in all_files_and_folders_in_current_folder:
-                return_code, crude_frame = self.video_stream.read()
+            try:
+                all_files_and_folders_in_current_folder = list(self.ftp.nlst())
+                if "image_source_to_retrieve.jpg" not in all_files_and_folders_in_current_folder:
+                    return_code, crude_frame = self.video_stream.read()
 
-                if crude_frame is not None:
-                    frame = cv2.cvtColor(crude_frame, cv2.COLOR_BGR2RGB)
-                    unprocessed_image_object = Image.fromarray(frame)
-                    unprocessed_image_object.save(self.temp_image_to_send_filepath)
-                    # We save the image to a file, that we will open to send to the FTP, quickly coded.
+                    if crude_frame is not None:
+                        frame = cv2.cvtColor(crude_frame, cv2.COLOR_BGR2RGB)
+                        unprocessed_image_object = Image.fromarray(frame)
+                        unprocessed_image_object.save(self.temp_image_to_send_filepath)
+                        # We save the image to a file, that we will open to send to the FTP, quickly coded.
 
-                    binary_image_file = open(self.temp_image_to_send_filepath, "rb")
-                    self.ftp.storbinary("STOR " + "image_source_writing.jpg", binary_image_file)
-                    self.ftp.rename("image_source_writing.jpg", "image_source_to_retrieve.jpg")
-                    time_last_send_image = time.time()
-                    self.count_send_source_images += 1
-                    print(f"Image source #{self.count_send_source_images} has been fully send and renamed.")
-                else:
-                    raise Exception("The webcam was not correctly identified. Try changing the index of the VideoCapture of the video_stream variable.")
+                        binary_image_file = open(self.temp_image_to_send_filepath, "rb")
+
+                        time_start_upload = time.time()
+                        self.ftp.storbinary("STOR " + "image_source_writing.jpg", binary_image_file)
+                        self.ftp.rename("image_source_writing.jpg", "image_source_to_retrieve.jpg")
+                        self.count_send_source_images += 1
+                        print(f"Image source #{self.count_send_source_images} has been fully send and renamed in {time.time() - time_start_upload}s")
+                    else:
+                        raise Exception("The webcam was not correctly identified. Try changing the index of the VideoCapture of the video_stream variable.")
+
+            except Exception as error:
+                print(f"Error : {error}")
+                self.ftp = ftp_factory.get_ftp()
+                print(f"Upload image source ftp client has been reinitialized")
 
             time.sleep(0.1)
 
@@ -69,10 +75,11 @@ class ThreadSaveGeneratedImageFromFtp(threading.Thread):
                 try:
                     all_files_and_folders_in_current_folder = list(self.ftp.nlst())
                     if "image_generated_to_retrieve.jpg" in all_files_and_folders_in_current_folder:
+                        time_start_retrieve = time.time()
                         self.ftp.retrbinary("RETR " + "image_generated_to_retrieve.jpg", open(self.temp_image_processed_writing_filepath, "wb").write)
                         self.count_received_generated_images += 1
                         self.ftp.delete("image_generated_to_retrieve.jpg")
-                        print(f"Retrieved generated image #{self.count_received_generated_images} and deleted the file in the ftp.")
+                        print(f"Retrieved generated image #{self.count_received_generated_images} and deleted the file in the ftp in {time.time() - time_start_retrieve}")
 
                         if os.path.isfile(self.temp_image_processed_writing_filepath):
                             need_to_update_image = False
@@ -99,6 +106,8 @@ class ThreadSaveGeneratedImageFromFtp(threading.Thread):
 
                 except Exception as error:
                     print(f"Error : {error}")
+                    self.ftp = ftp_factory.get_ftp()
+                    print(f"Save generated image ftp client has been reinitialized")
 
             time.sleep(0.1)
 

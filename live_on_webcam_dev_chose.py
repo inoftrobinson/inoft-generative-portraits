@@ -85,6 +85,7 @@ if __name__ == "__main__":
     # We also create the window only if we are the main scripts, since secondary scripts
     # can import this script yet we do not want to create the window multiple times
     create_matplotlib_window()
+    print(plt.get_backend())
 
 import time
 from datetime import datetime
