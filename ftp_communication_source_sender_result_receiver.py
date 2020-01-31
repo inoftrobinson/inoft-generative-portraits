@@ -18,7 +18,7 @@ class ThreadUploadImageSourceFromWebcam(threading.Thread):
         self.video_stream = video_stream
 
         self.temp_image_to_send_filepath = os.path.join(temp_folderpath, "image_source_to_send.jpg")
-        self.ftp = ftp_factory.get_ftp()
+        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
 
         self.count_send_source_images = 0
         self.seconds_interval_to_wait_before_sends = 0.25
@@ -48,7 +48,7 @@ class ThreadUploadImageSourceFromWebcam(threading.Thread):
 
             except Exception as error:
                 print(f"Error : {error}")
-                self.ftp = ftp_factory.get_ftp()
+                self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
                 print(f"Upload image source ftp client has been reinitialized")
 
             time.sleep(0.1)
@@ -60,7 +60,7 @@ class ThreadUploadImageSourceFromWebcam(threading.Thread):
 class ThreadSaveGeneratedImageFromFtp(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.ftp = ftp_factory.get_ftp()
+        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
 
         self.temp_image_processed_writing_filepath = os.path.join(temp_folderpath, "image_processed_received_writing.jpg")
         self.temp_image_processed_complete_filepath = os.path.join(temp_folderpath, "image_generated_received_complete.jpg")
@@ -106,7 +106,7 @@ class ThreadSaveGeneratedImageFromFtp(threading.Thread):
 
                 except Exception as error:
                     print(f"Error : {error}")
-                    self.ftp = ftp_factory.get_ftp()
+                    self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
                     print(f"Save generated image ftp client has been reinitialized")
 
             time.sleep(0.1)

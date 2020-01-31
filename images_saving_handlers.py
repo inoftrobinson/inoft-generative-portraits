@@ -18,7 +18,7 @@ class ImagesSavingHandlers:
         self.additional_text_to_use_in_filenames = None
         self.num_seconds_before_removing_saved_unprocessed_image = 10
 
-    def remove_too_old_saved_unprocessed_image(self):
+    def remove_too_old_saved_unprocessed_image(self) -> None:
         keys_images_to_remove = list()
 
         for time_saved_image_key in self.last_images.keys():
@@ -56,7 +56,7 @@ class ImagesSavingHandlers:
 
         return current_week_number_folderpath
 
-    def save_recents_images(self):
+    def save_recents_images(self) -> None:
         print(f"Saving {len(self.last_images) * 2} images")
         # We multiply the length by 2 since we save the unprocessed and the generated image
 

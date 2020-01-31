@@ -11,7 +11,7 @@ from emotions_recognition.images_saving_handlers import ImagesSavingHandlers
 window = DisplayWindowHandlers()
 
 activate_api_infos_communication = True
-activate_source_sender_result_receiver = False
+activate_source_sender_result_receiver = True
 activate_source_receiver_result_sender = False
 if activate_source_sender_result_receiver is True and activate_source_receiver_result_sender is True:
     raise Exception("The 2 modes cannot be active at the same time.")
@@ -29,8 +29,6 @@ elif activate_source_receiver_result_sender is True:
     from emotions_recognition import ftp_communication_source_receiver_result_sender
     thread_class_save_image_source_from_ftp = ftp_communication_source_receiver_result_sender.ThreadSaveImageSourceFromFtp()
     thread_class_upload_generated_image = ftp_communication_source_receiver_result_sender.ThreadUploadGeneratedImage()
-
-base_dir = "F:/Bureau des émotions/trained_models"
 
 style_folder_name = "clone"
 

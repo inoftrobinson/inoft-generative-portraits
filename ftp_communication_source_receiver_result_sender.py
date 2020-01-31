@@ -17,7 +17,7 @@ class ThreadSaveImageSourceFromFtp(threading.Thread):
         self.temp_image_source_received_writing_filepath = os.path.join(temp_folderpath, "image_source_received_writing.jpg")
         self.temp_image_source_received_complete_filepath = os.path.join(temp_folderpath, "image_source_received_complete.jpg")
 
-        self.ftp = ftp_factory.get_ftp()
+        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
         self.count_received_images = 0
         self.image_source_been_modified_and_not_yet_used = False
         self.retrieved_image_at_least_once = False
@@ -59,7 +59,7 @@ class ThreadSaveImageSourceFromFtp(threading.Thread):
 
                 except Exception as error:
                     print(f"Error : {error}")
-                    self.ftp = ftp_factory.get_ftp()
+                    self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
                     print(f"Save image source ftp client has been reinitialized")
 
             time.sleep(0.1)
@@ -79,7 +79,7 @@ class ThreadUploadGeneratedImage(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.temp_image_generated_to_send_filepath = os.path.join(temp_folderpath, "image_generated_to_send.jpg")
-        self.ftp = ftp_factory.get_ftp()
+        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
         self.count_send_generated_images = 0
         self.last_modified_time_of_image_generated_to_send = 0
         self.new_generated_image_to_send_has_been_created = False
@@ -117,7 +117,7 @@ class ThreadUploadGeneratedImage(threading.Thread):
 
                 except Exception as error:
                     print(f"Error : {error}")
-                    self.ftp = ftp_factory.get_ftp()
+                    self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
                     print(f"Upload generated image ftp client has been reinitialized")
 
             time.sleep(0.1)
