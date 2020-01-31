@@ -66,8 +66,13 @@ class ThreadSaveImageSourceFromFtp(threading.Thread):
 
     def get_image_source(self) -> Image.Image:
         if os.path.isfile(self.temp_image_source_received_complete_filepath):
-            processed_generated_image = Image.open(self.temp_image_source_received_complete_filepath)
-            return processed_generated_image
+            try:
+                processed_generated_image = Image.open(self.temp_image_source_received_complete_filepath)
+                return processed_generated_image
+            except Exception as error:
+                # Sometimes, when trying to open the image file, there might be a crash, if that's the case,
+                # we just skip the image for the loop, and do not make crash the program.
+                print(f"Non-crashing error while trying to open the image source received from the ftp at {time.time()}s")
         else:
             return None
 

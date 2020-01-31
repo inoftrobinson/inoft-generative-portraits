@@ -79,6 +79,7 @@ def set_need_to_save_pictures(channel_id: str, new_value: bool):
     except Exception as e:
         print(e.response["Error"]["Message"])
 
+
 class ApiListener(threading.Thread):
     def __init__(self, thread_id, thread_name, channel_id_to_check: str, parent_networkSystem: NetworkSystem):
         threading.Thread.__init__(self)
@@ -97,8 +98,8 @@ class ApiListener(threading.Thread):
                 self.parent_networkSystem.has_style_type_just_changed = True
 
             if need_to_save_pictures:
-                self.parent_networkSystem.need_to_save_pictures = True
-                self.parent_networkSystem.additional_text_to_use_in_filenames = additional_text_to_use_in_filenames
+                self.parent_networkSystem.imagesSaving.need_to_save_pictures = True
+                self.parent_networkSystem.imagesSaving.additional_text_to_use_in_filenames = additional_text_to_use_in_filenames
                 set_need_to_save_pictures(channel_id=self.channel_id_to_check, new_value=False)
 
             time.sleep(0.5)

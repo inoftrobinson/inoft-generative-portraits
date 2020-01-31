@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 from PIL import Image
 from matplotlib import use as set_plt_backend
@@ -9,7 +10,7 @@ import matplotlib.pyplot as _plt
 
 
 class DisplayWindowHandlers:
-    def __init__(self):
+    def __init__(self, set_window_fullscreen: bool):
         self.current_dir_path = os.path.dirname(os.path.abspath(__file__))
         self.emotion_thumbnail_image = None
 
@@ -28,9 +29,10 @@ class DisplayWindowHandlers:
         # Disable any margin by sticking the subplots in the corners of the window (need to be done after creating the fig)
         self.plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
-        # Display the window in full screen
-        mng = self.plt.get_current_fig_manager()
-        mng.full_screen_toggle()
+        if set_window_fullscreen:
+            # Display the window in full screen
+            mng = self.plt.get_current_fig_manager()
+            mng.full_screen_toggle()
 
         # Make the fig take the all window (because it might not take the entire resolution of the screen, needs to be the last operation on the fig to avoid resizing issues)
         self.fig.set_size_inches(19.20, 10.80 + 0.02)  # 1 inch is 100 pixels
@@ -46,9 +48,14 @@ class DisplayWindowHandlers:
     def set_emotion_thumbnail_image(self, current_used_style_name: str) -> None:
         image_path = os.path.join(self.current_dir_path, "icons_images", f"{current_used_style_name}.png")
         if os.path.isfile(image_path):
-            image = Image.open(image_path)
-            image.thumbnail((128, 128), Image.ANTIALIAS)  # resize image in-place
-            self.emotion_thumbnail_image = image
+            try:
+                image = Image.open(image_path)
+                image.thumbnail((128, 128), Image.ANTIALIAS)  # resize image in-place
+                self.emotion_thumbnail_image = image
+            except Exception as error:
+                # Sometimes, when trying to open the image file, there might be a crash, if that's the case, we just skip
+                # the setting of the thumbnail for the loop and let it set itself to None, and do not make crash the program.
+                print(f"Non-crashing error while trying to open the processed generated image received from the ftp at {time.time()}s")
         else:
             self.emotion_thumbnail_image = None
 

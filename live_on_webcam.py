@@ -9,11 +9,11 @@ from display_window_handlers import DisplayWindowHandlers
 from image_generation import ImageGeneration
 from images_saving_handlers import ImagesSavingHandlers
 
-window = DisplayWindowHandlers()
+window = DisplayWindowHandlers(set_window_fullscreen=False)
 
 activate_api_infos_communication = True
-activate_source_sender_result_receiver = True
-activate_source_receiver_result_sender = False
+activate_source_sender_result_receiver = False
+activate_source_receiver_result_sender = True
 if activate_source_sender_result_receiver is True and activate_source_receiver_result_sender is True:
     raise Exception("The 2 modes cannot be active at the same time.")
 
@@ -78,6 +78,7 @@ class NetworkSystem:
                 self.imagesSaving.need_to_save_pictures = False
 
             need_to_update_generated_image = False
+            processed_generated_image = None
             if activate_source_receiver_result_sender is not True and activate_source_sender_result_receiver is not True:
                 # If we are using the source sender result receiver, the handling and sending of the video stream is done in its own thread, not here.
                 return_code, crude_frame = video_stream.read()
@@ -91,22 +92,28 @@ class NetworkSystem:
                 if thread_class_save_image_source_from_ftp.image_source_been_modified_and_not_yet_used or self.imageGen.has_style_type_just_changed:
                     # No matter the situation, if the style type has changed, even if  the source image has not changed, we need to update the image.
                     unprocessed_image_object = thread_class_save_image_source_from_ftp.get_image_source()
-                    processed_generated_image = self.imageGen.process_image_source_to_generated(image_source=unprocessed_image_object)
-                    thread_class_save_image_source_from_ftp.image_source_been_modified_and_not_yet_used = False
-                    need_to_update_generated_image = True
+                    # The unprocessed image object can be None if there was an issue while trying to open the image file.
+                    if unprocessed_image_object is not None:
+                        processed_generated_image = self.imageGen.process_image_source_to_generated(image_source=unprocessed_image_object)
+                        thread_class_save_image_source_from_ftp.image_source_been_modified_and_not_yet_used = False
+                        need_to_update_generated_image = True
 
             elif activate_source_sender_result_receiver is True:
                 # If we are using the source sender result receiver, the handling and sending of the video stream is done in its own thread, not here.
                 if thread_class_save_generated_image_from_ftp.received_new_received_generated_image_not_yet_displayed or self.imageGen.has_style_type_just_changed:
                     # No matter the situation, if the style type has changed, even if  the source image has not changed, we need to update the image.
-                    ImageFile.LOAD_TRUNCATED_IMAGES = True
-                    # Truncated images to True in order to allow partial images to still be loaded
-                    processed_generated_image = Image.open(thread_class_save_generated_image_from_ftp.temp_image_processed_complete_filepath)
-                    thread_class_save_generated_image_from_ftp.received_new_received_generated_image_not_yet_displayed = False
-                    need_to_update_generated_image = True
+                    try:
+                        ImageFile.LOAD_TRUNCATED_IMAGES = True
+                        # Truncated images to True in order to allow partial images to still be loaded
+                        processed_generated_image = Image.open(thread_class_save_generated_image_from_ftp.temp_image_processed_complete_filepath)
+                        thread_class_save_generated_image_from_ftp.received_new_received_generated_image_not_yet_displayed = False
+                        need_to_update_generated_image = True
+                    except Exception as error:
+                        # Sometimes, when trying to open the image file, there might be a crash, if that's the case,
+                        # we just skip the image for the loop, and do not make crash the program.
+                        print(f"Non-crashing error while trying to open the processed generated image received from the ftp at {time.time()}s")
 
-
-            if need_to_update_generated_image is True:
+            if need_to_update_generated_image is True and processed_generated_image is not None:
                 self.imagesSaving.remove_too_old_saved_unprocessed_image()
                 self.imagesSaving.last_images[str(time.time())] = {
                     self.imagesSaving.KEY_UNPROCESSED: unprocessed_image_object,

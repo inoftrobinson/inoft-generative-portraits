@@ -44,13 +44,13 @@ class ImagesSavingHandlers:
         if not os.path.exists(current_year_folderpath):
             os.makedirs(current_year_folderpath)
 
-        current_month_folderpath = os.path.join(current_year_folderpath, str(now_datetime.month))
+        current_month_folderpath = os.path.join(current_year_folderpath, str(now_datetime.strftime("%B")))
         if not os.path.exists(current_month_folderpath):
             os.makedirs(current_month_folderpath)
 
         date_given = datetime.today().date()
-        week_number_of_month = utils.week_number_of_month(date_given)
-        current_week_number_folderpath = os.path.join(current_month_folderpath, f"Semaine-{week_number_of_month}")
+        week_number_of_month = date_given.isocalendar()[1] - date_given.replace(day=1).isocalendar()[1] + 1
+        current_week_number_folderpath = os.path.join(current_month_folderpath, f"Week-{week_number_of_month}")
         if not os.path.exists(current_week_number_folderpath):
             os.makedirs(current_week_number_folderpath)
 

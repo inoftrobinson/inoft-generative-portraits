@@ -2,7 +2,7 @@ import os
 
 
 class ModelsFilesSettings:
-    base_dir = "F:/Bureau des émotions/trained_models"
+    base_dir = "C:/Users/CreativeAI/Documents/Bureau des émotions/outputs/output"
 
     statedicts_folderpaths_per_style = {
         "surprise": os.path.join(base_dir, "bleu-clair-surprise"),
