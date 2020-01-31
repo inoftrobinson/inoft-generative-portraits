@@ -2,7 +2,7 @@ import threading
 import requests
 import time
 from ast import literal_eval
-from emotions_recognition.live_on_webcam import NetworkSystem
+from live_on_webcam import NetworkSystem
 
 API_URL_GET_ENTIRE_CHANNEL = "https://n5p1ms9q06.execute-api.eu-west-2.amazonaws.com/env"
 API_URL_GET_SAVE_PICTURES = "https://n5p1ms9q06.execute-api.eu-west-2.amazonaws.com/env/save-pictures"

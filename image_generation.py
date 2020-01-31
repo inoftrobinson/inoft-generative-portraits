@@ -10,8 +10,8 @@ from matplotlib.figure import Figure
 from matplotlib.image import AxesImage
 from torchvision.utils import make_grid
 
-from emotions_recognition.models import Generator
-from emotions_recognition.models_files_settings import ModelsFilesSettings
+from models import Generator
+from models_files_settings import ModelsFilesSettings
 
 
 class ImageGeneration:

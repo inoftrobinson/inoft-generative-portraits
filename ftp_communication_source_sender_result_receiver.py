@@ -5,7 +5,7 @@ import cv2
 import os
 from PIL import Image
 
-from emotions_recognition import ftp_factory
+import ftp_factory
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 temp_folderpath = os.path.join(current_dir, "temp")

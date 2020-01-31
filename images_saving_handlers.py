@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import time
 from PIL import Image
-from emotions_recognition import utils
+import utils
 
 
 class ImagesSavingHandlers:

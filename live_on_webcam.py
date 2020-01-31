@@ -4,9 +4,10 @@ import cv2
 import time
 from PIL import Image, ImageFile
 
-from emotions_recognition.display_window_handlers import DisplayWindowHandlers
-from emotions_recognition.image_generation import ImageGeneration
-from emotions_recognition.images_saving_handlers import ImagesSavingHandlers
+from display_window_handlers import DisplayWindowHandlers
+from display_window_handlers import DisplayWindowHandlers
+from image_generation import ImageGeneration
+from images_saving_handlers import ImagesSavingHandlers
 
 window = DisplayWindowHandlers()
 
@@ -22,11 +23,11 @@ if activate_source_receiver_result_sender is not True:
     video_stream = cv2.VideoCapture(0)
 
 if activate_source_sender_result_receiver is True:
-    from emotions_recognition import ftp_communication_source_sender_result_receiver
+    import ftp_communication_source_sender_result_receiver
     thread_class_upload_image_source_from_webcam = ftp_communication_source_sender_result_receiver.ThreadUploadImageSourceFromWebcam(video_stream=video_stream)
     thread_class_save_generated_image_from_ftp = ftp_communication_source_sender_result_receiver.ThreadSaveGeneratedImageFromFtp()
 elif activate_source_receiver_result_sender is True:
-    from emotions_recognition import ftp_communication_source_receiver_result_sender
+    import ftp_communication_source_receiver_result_sender
     thread_class_save_image_source_from_ftp = ftp_communication_source_receiver_result_sender.ThreadSaveImageSourceFromFtp()
     thread_class_upload_generated_image = ftp_communication_source_receiver_result_sender.ThreadUploadGeneratedImage()
 
@@ -41,7 +42,7 @@ class NetworkSystem:
 
     def start_network_loop(self):
         if activate_api_infos_communication is True:
-            from emotions_recognition import api_communication
+            import api_communication
             api_communication.trigger_async_api_listener_loop(parent_networkSystem=self, channel_id=api_communication.CHANNEL_ID)
 
         if activate_source_receiver_result_sender is True:

@@ -1,5 +1,5 @@
 import ftplib
-from emotions_recognition.credentials import *
+from credentials import *
 
 
 def get_ftp(extra_filepath_to_navigate_to=None) -> ftplib.FTP:

@@ -4,8 +4,8 @@ import requests
 import time
 from ast import literal_eval
 
-from emotions_recognition import ftp_factory
-from emotions_recognition.live_on_webcam import NetworkSystem
+import ftp_factory
+from live_on_webcam import NetworkSystem
 
 FILENAME_CHANNEL_INFOS_TXT = "channel_infos.txt"
 
