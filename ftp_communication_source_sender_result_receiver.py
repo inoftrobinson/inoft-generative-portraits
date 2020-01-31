@@ -12,13 +12,15 @@ temp_folderpath = os.path.join(current_dir, "temp")
 if not os.path.isdir(temp_folderpath):
     os.makedirs(temp_folderpath)
 
+FILENAME_IMAGE_GENERATED_TO_RETRIEVE_JPG = "image_generated_to_retrieve.jpg"
+
 class ThreadUploadImageSourceFromWebcam(threading.Thread):
     def __init__(self, video_stream: cv2.VideoCapture):
         threading.Thread.__init__(self)
         self.video_stream = video_stream
 
         self.temp_image_to_send_filepath = os.path.join(temp_folderpath, "image_source_to_send.jpg")
-        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
+        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="/images")
 
         self.count_send_source_images = 0
         self.seconds_interval_to_wait_before_sends = 0.25
@@ -48,7 +50,7 @@ class ThreadUploadImageSourceFromWebcam(threading.Thread):
 
             except Exception as error:
                 print(f"Error : {error}")
-                self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
+                self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="/images")
                 print(f"Upload image source ftp client has been reinitialized")
 
             time.sleep(0.1)
@@ -60,7 +62,7 @@ class ThreadUploadImageSourceFromWebcam(threading.Thread):
 class ThreadSaveGeneratedImageFromFtp(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
+        self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="/images")
 
         self.temp_image_processed_writing_filepath = os.path.join(temp_folderpath, "image_processed_received_writing.jpg")
         self.temp_image_processed_complete_filepath = os.path.join(temp_folderpath, "image_generated_received_complete.jpg")
@@ -74,12 +76,16 @@ class ThreadSaveGeneratedImageFromFtp(threading.Thread):
             if self.received_new_received_generated_image_not_yet_displayed is False:
                 try:
                     all_files_and_folders_in_current_folder = list(self.ftp.nlst())
-                    if "image_generated_to_retrieve.jpg" in all_files_and_folders_in_current_folder:
+                    if FILENAME_IMAGE_GENERATED_TO_RETRIEVE_JPG in all_files_and_folders_in_current_folder:
                         time_start_retrieve = time.time()
-                        self.ftp.retrbinary("RETR " + "image_generated_to_retrieve.jpg", open(self.temp_image_processed_writing_filepath, "wb").write)
+                        self.ftp.retrbinary(f"RETR {FILENAME_IMAGE_GENERATED_TO_RETRIEVE_JPG}", open(self.temp_image_processed_writing_filepath, "wb").write)
                         self.count_received_generated_images += 1
-                        self.ftp.delete("image_generated_to_retrieve.jpg")
-                        print(f"Retrieved generated image #{self.count_received_generated_images} and deleted the file in the ftp in {time.time() - time_start_retrieve}")
+
+                        all_files_and_folders_in_current_folder_after_retrieving_generated_image = list(self.ftp.nlst())
+                        if FILENAME_IMAGE_GENERATED_TO_RETRIEVE_JPG in all_files_and_folders_in_current_folder_after_retrieving_generated_image:
+                            self.ftp.delete("image_generated_to_retrieve.jpg")
+                            print(f"Deleted the retrieved generated image file #{self.count_received_generated_images} from the ftp")
+                        print(f"Retrieved generated image #{self.count_received_generated_images} in {time.time() - time_start_retrieve}")
 
                         if os.path.isfile(self.temp_image_processed_writing_filepath):
                             need_to_update_image = False
@@ -106,7 +112,7 @@ class ThreadSaveGeneratedImageFromFtp(threading.Thread):
 
                 except Exception as error:
                     print(f"Error : {error}")
-                    self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="images")
+                    self.ftp = ftp_factory.get_ftp(extra_filepath_to_navigate_to="/images")
                     print(f"Save generated image ftp client has been reinitialized")
 
             time.sleep(0.1)

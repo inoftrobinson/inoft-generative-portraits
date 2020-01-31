@@ -12,8 +12,8 @@ from images_saving_handlers import ImagesSavingHandlers
 window = DisplayWindowHandlers(set_window_fullscreen=False)
 
 activate_api_infos_communication = True
-activate_source_sender_result_receiver = False
-activate_source_receiver_result_sender = True
+activate_source_sender_result_receiver = True
+activate_source_receiver_result_sender = False
 if activate_source_sender_result_receiver is True and activate_source_receiver_result_sender is True:
     raise Exception("The 2 modes cannot be active at the same time.")
 
@@ -36,7 +36,8 @@ style_folder_name = "clone"
 
 class NetworkSystem:
     def __init__(self):
-        self.imageGen = ImageGeneration()
+        if not activate_source_sender_result_receiver:
+            self.imageGen = ImageGeneration()
         self.imagesSaving = ImagesSavingHandlers()
         self.current_dir_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -100,8 +101,8 @@ class NetworkSystem:
 
             elif activate_source_sender_result_receiver is True:
                 # If we are using the source sender result receiver, the handling and sending of the video stream is done in its own thread, not here.
-                if thread_class_save_generated_image_from_ftp.received_new_received_generated_image_not_yet_displayed or self.imageGen.has_style_type_just_changed:
-                    # No matter the situation, if the style type has changed, even if  the source image has not changed, we need to update the image.
+                if thread_class_save_generated_image_from_ftp.received_new_received_generated_image_not_yet_displayed:
+                    # In this case we do not need to check if the style has changed, since we just want to receive a finished image and not touch it.
                     try:
                         ImageFile.LOAD_TRUNCATED_IMAGES = True
                         # Truncated images to True in order to allow partial images to still be loaded
