@@ -72,7 +72,7 @@ def set_need_to_save_pictures(channel_id: str, new_value: bool):
     try:
         if new_value is False:
             response = requests.delete(f"{API_URL_GET_SAVE_PICTURES}?channel_id={channel_id}")
-            print(response)
+            print(response) 
 
         elif new_value is True:
             response = requests.post(f"{API_URL_GET_SAVE_PICTURES}?channel_id={channel_id}")
