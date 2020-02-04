@@ -6,7 +6,7 @@ from PIL import Image
 from matplotlib import use as set_plt_backend
 from matplotlib.figure import Figure
 from matplotlib.image import AxesImage
-import matplotlib.pyplot as _plt
+import matplotlib.pyplot as plt
 
 
 class DisplayWindowHandlers:
@@ -14,24 +14,24 @@ class DisplayWindowHandlers:
         self.current_dir_path = os.path.dirname(os.path.abspath(__file__))
         self.emotion_thumbnail_image = None
 
-        self.plt = _plt
-        set_plt_backend("TkAgg")
+        set_plt_backend("tkagg")
 
         # Removing the toolbar (need to be done before creating the fig)
-        self.plt.rcParams["toolbar"] = "None"
+        plt.rcParams["toolbar"] = "None"
 
-        self.fig, self.ax = self.plt.subplots(1, figsize=(16, 9), constrained_layout=False)
+        self.fig, self.ax = plt.subplots(1, figsize=(16, 9), constrained_layout=False)
+
         self.fig.canvas.set_window_title("Inoft Portraits - Bureau des émotions")
 
         # Remove the y and x axis (need to be done after creating the fig)
-        self.plt.axis("off")
+        plt.axis("off")
 
         # Disable any margin by sticking the subplots in the corners of the window (need to be done after creating the fig)
-        self.plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+        plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
         if set_window_fullscreen:
             # Display the window in full screen
-            mng = self.plt.get_current_fig_manager()
+            mng = plt.get_current_fig_manager()
             mng.full_screen_toggle()
 
         # Make the fig take the all window (because it might not take the entire resolution of the screen, needs to be the last operation on the fig to avoid resizing issues)
@@ -42,10 +42,11 @@ class DisplayWindowHandlers:
 
     def close_program(event):
         print("Quiting program")
-        # self.plt.close()
+        # plt.close()
         sys.exit()
 
     def set_emotion_thumbnail_image(self, current_used_style_name: str) -> None:
+        return None
         image_path = os.path.join(self.current_dir_path, "icons_images", f"{current_used_style_name}.png")
         if os.path.isfile(image_path):
             try:
@@ -60,6 +61,7 @@ class DisplayWindowHandlers:
             self.emotion_thumbnail_image = None
 
     def put_emotion_thumbnail_on_figure(self, image_plt_object: AxesImage) -> Figure:
+        return None
         generated_image_left_start_in_fig_width = image_plt_object.clipbox.intervalx.min()
         generated_image_right_end_in_fig_width = image_plt_object.clipbox.intervalx.max()
         generated_image_width_pixel_size = generated_image_right_end_in_fig_width - generated_image_left_start_in_fig_width
@@ -89,7 +91,14 @@ class DisplayWindowHandlers:
 
     def show_image(self, image_object_to_show):
         plt_image_object = self.ax.imshow(image_object_to_show, interpolation="nearest")
-        self.ax.set_aspect("auto")
+        # self.ax.set_aspect("auto")
+        # We need to set the aspect to auto on every frame,
+        # otherwise the image might not fill up to entire screen.
         return plt_image_object
-        # We need to set the aspect to auto on every frame, otherwise the image might not fill up to entire screen
+
+    def save_fig(self, filepath: str) -> None:
+        plt.savefig(filepath)
+
+    def loop_paue(self) -> None:
+        plt.pause(0.01)
 

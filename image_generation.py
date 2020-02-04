@@ -6,8 +6,6 @@ import time
 import torch
 import torchvision.transforms as transforms
 from PIL import Image, ImageChops
-from matplotlib.figure import Figure
-from matplotlib.image import AxesImage
 from torchvision.utils import make_grid
 
 from models import Generator

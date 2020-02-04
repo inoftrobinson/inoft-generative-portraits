@@ -1,18 +1,15 @@
 import os
-import sys
 import cv2
 import time
 from PIL import Image, ImageFile
 
 from display_window_handlers import DisplayWindowHandlers
-from display_window_handlers import DisplayWindowHandlers
 from image_generation import ImageGeneration
 from images_saving_handlers import ImagesSavingHandlers
 
-window = DisplayWindowHandlers(set_window_fullscreen=False)
-
+save_all_images = True
 activate_api_infos_communication = True
-activate_source_sender_result_receiver = True
+activate_source_sender_result_receiver = False
 activate_source_receiver_result_sender = False
 if activate_source_sender_result_receiver is True and activate_source_receiver_result_sender is True:
     raise Exception("The 2 modes cannot be active at the same time.")
@@ -36,10 +33,14 @@ style_folder_name = "clone"
 
 class NetworkSystem:
     def __init__(self):
+        self.current_dir_path = os.path.dirname(os.path.abspath(__file__))
+        self.window = DisplayWindowHandlers(set_window_fullscreen=False)
+        # The window must be created inside the init of the network system, otherwise if it was outside the init, other scripts that would
+        # import the NetworkSystem for example to use it as parent, would then create a new instance of the window, where we want only one.
+
         if not activate_source_sender_result_receiver:
             self.imageGen = ImageGeneration()
         self.imagesSaving = ImagesSavingHandlers()
-        self.current_dir_path = os.path.dirname(os.path.abspath(__file__))
 
     def start_network_loop(self):
         if activate_api_infos_communication is True:
@@ -71,10 +72,10 @@ class NetworkSystem:
                     if self.imageGen.has_style_type_just_changed:
                         self.imageGen.currently_used_netG_A2B = self.imageGen.netG_A2B_dict_for_all_styles[self.imageGen.current_used_style_name]
                 if self.imageGen.has_style_type_just_changed:
-                    window.set_emotion_thumbnail_image(current_used_style_name=self.imageGen.current_used_style_name)
+                    self.window.set_emotion_thumbnail_image(current_used_style_name=self.imageGen.current_used_style_name)
                     self.imageGen.has_style_type_just_changed = False
 
-            if self.imagesSaving.need_to_save_pictures is True:
+            if save_all_images is True or self.imagesSaving.need_to_save_pictures is True:
                 self.imagesSaving.save_recents_images()
                 self.imagesSaving.need_to_save_pictures = False
 
@@ -129,19 +130,19 @@ class NetworkSystem:
                     except Exception:
                         pass
 
-                generated_image_plt_object = window.show_image(processed_generated_image)
-                plt_thumbnail_image_object = window.put_emotion_thumbnail_on_figure(image_plt_object=generated_image_plt_object)
+                generated_image_plt_object = self.window.show_image(processed_generated_image)
+                plt_thumbnail_image_object = self.window.put_emotion_thumbnail_on_figure(image_plt_object=generated_image_plt_object)
                 # endregion
 
                 if activate_source_receiver_result_sender is True:
-                    window.plt.savefig(os.path.join(self.current_dir_path, "temp", "image_generated_to_send.jpg"))
+                    self.window.save_fig(os.path.join(self.current_dir_path, "temp", "image_generated_to_send.jpg"))
                     thread_class_upload_generated_image.new_generated_image_to_send_has_been_created = True
 
                 index_image += 1
 
-            window.plt.pause(0.01)
+            self.window.loop_paue()
             # Even if the displayed image has not been modified, at every step in the loop we need to call plt.pause,
-            # otherwise the previously plotted image will vanish from the plot, and the window might crash.
+            # otherwise the previously plotted image will vanish from the plot, and the self.window might crash.
 
 
 if __name__ == "__main__":

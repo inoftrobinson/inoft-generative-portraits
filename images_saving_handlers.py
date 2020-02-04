@@ -80,3 +80,7 @@ class ImagesSavingHandlers:
                     if isinstance(generated_image_object, Image.Image):
                         generated_image_filename = f"{formatted_date_string}_generated.jpg"
                         generated_image_object.save(os.path.join(self.get_and_make_dir_to_save_images_for_current_date(), generated_image_filename))
+
+        self.last_images.clear()
+        # After that the last images have been saved, we clear the dict, to not potentially
+        # save the same image twice (in particular if the mode save all images is activated)

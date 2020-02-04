@@ -2,6 +2,7 @@ import threading
 import requests
 import time
 from ast import literal_eval
+import live_on_webcam
 from live_on_webcam import NetworkSystem
 
 API_URL_GET_ENTIRE_CHANNEL = "https://n5p1ms9q06.execute-api.eu-west-2.amazonaws.com/env"
@@ -14,15 +15,16 @@ KEY_ADDITIONAL_TEXT_TO_USE_IN_FILENAMES = "additional_text_to_use_in_filenames"
 CHANNEL_ID = "Marie.Desert-X09253"
 
 last_style_names, need_to_save_pictures_of_channel = dict(), dict()
-def get_channel_infos(channel_id: str) -> (bool, str, bool, str):
+def get_channel_infos(channel_id: str, device_id: str) -> (bool, str, bool, str):
     """
     :param channel_id:
+    :param device_id:
     :return bool (has style name changed)
             str (current style name, the new one if it has been changed)
             bool (need to save pictures)
     """
     try:
-        response = requests.get(f"{API_URL_GET_ENTIRE_CHANNEL}?channel_id={channel_id}")
+        response = requests.get(f"{API_URL_GET_ENTIRE_CHANNEL}?channel_id={channel_id}" + (f"&device_id={device_id}" if device_id is not None else ""))
     except Exception as e:
         print(e.response["Error"]["Message"])
     else:
@@ -89,13 +91,22 @@ class ApiListener(threading.Thread):
         self.channel_id_to_check = channel_id_to_check
         self.parent_networkSystem = parent_networkSystem
 
+        self.device_id = None
+        if live_on_webcam.activate_source_sender_result_receiver is True:
+            self.device_id = 0
+        elif live_on_webcam.activate_source_receiver_result_sender is True:
+            self.device_id = 1
+        else:
+            self.device_id = 0
+
     def run(self):
         while True:
-            style_name_has_changed, current_selected_style_type_or_name, need_to_save_pictures, additional_text_to_use_in_filenames = get_channel_infos(channel_id=self.channel_id_to_check)
+            style_name_has_changed, current_selected_style_type_or_name,\
+            need_to_save_pictures, additional_text_to_use_in_filenames = get_channel_infos(channel_id=self.channel_id_to_check, device_id=self.device_id)
             if style_name_has_changed:
                 print(f"Style name has changed and is now : {current_selected_style_type_or_name}")
-                self.parent_networkSystem.current_selected_style_type_or_name = current_selected_style_type_or_name
-                self.parent_networkSystem.has_style_type_just_changed = True
+                self.parent_networkSystem.imageGen.current_selected_style_type_or_name = current_selected_style_type_or_name
+                self.parent_networkSystem.imageGen.has_style_type_just_changed = True
 
             if need_to_save_pictures:
                 self.parent_networkSystem.imagesSaving.need_to_save_pictures = True
