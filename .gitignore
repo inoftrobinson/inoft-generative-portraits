@@ -14,7 +14,7 @@ develop-eggs/
 dist/
 downloads/
 temp/
-saved-images/
+saved_images/
 eggs/
 .eggs/
 lib/
