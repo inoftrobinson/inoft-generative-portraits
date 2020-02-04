@@ -46,7 +46,6 @@ class DisplayWindowHandlers:
         sys.exit()
 
     def set_emotion_thumbnail_image(self, current_used_style_name: str) -> None:
-        return None
         image_path = os.path.join(self.current_dir_path, "icons_images", f"{current_used_style_name}.png")
         if os.path.isfile(image_path):
             try:
@@ -61,7 +60,6 @@ class DisplayWindowHandlers:
             self.emotion_thumbnail_image = None
 
     def put_emotion_thumbnail_on_figure(self, image_plt_object: AxesImage) -> Figure:
-        return None
         generated_image_left_start_in_fig_width = image_plt_object.clipbox.intervalx.min()
         generated_image_right_end_in_fig_width = image_plt_object.clipbox.intervalx.max()
         generated_image_width_pixel_size = generated_image_right_end_in_fig_width - generated_image_left_start_in_fig_width
