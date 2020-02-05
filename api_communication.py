@@ -113,7 +113,7 @@ class ApiListener(threading.Thread):
                 self.parent_networkSystem.imagesSaving.additional_text_to_use_in_filenames = additional_text_to_use_in_filenames
                 set_need_to_save_pictures(channel_id=self.channel_id_to_check, new_value=False)
 
-            time.sleep(0.5)
+            time.sleep(1)
 
 def trigger_async_api_listener_loop(parent_networkSystem: NetworkSystem, channel_id: str):
     # Create new threads
