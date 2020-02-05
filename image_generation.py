@@ -16,7 +16,7 @@ class ImageGeneration:
     def __init__(self):
         self.count_generated_images = 0
         self.last_time_random_mode_changed_style = 0
-        self.seconds_delay_for_random_mode_to_wait_before_changing_style = 10
+        self.seconds_delay_for_random_mode_to_wait_before_changing_style = 20
 
         self.is_in_random_mode = False
         self.current_used_style_name = None
