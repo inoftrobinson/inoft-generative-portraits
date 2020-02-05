@@ -57,30 +57,31 @@ class ImagesSavingHandlers:
         return current_week_number_folderpath
 
     def save_recents_images(self) -> None:
-        print(f"Saving {len(self.last_images) * 2} images")
-        # We multiply the length by 2 since we save the unprocessed and the generated image
+        if len(self.last_images) > 0:
+            print(f"Saving {len(self.last_images) * 2} images")
+            # We multiply the length by 2 since we save the unprocessed and the generated image
 
-        for time_saved_image_key, saved_images_dict in self.last_images.items():
-            timestamp_without_milliseconds, timestamp_milliseconds_only = str(time_saved_image_key).split(".", maxsplit=1)
-            formatted_date_string = datetime.utcfromtimestamp(int(timestamp_without_milliseconds)).strftime("%Y-%m-%d_%Hh%Mm%Ss") + f"-{timestamp_milliseconds_only}millios"
+            for time_saved_image_key, saved_images_dict in self.last_images.items():
+                timestamp_without_milliseconds, timestamp_milliseconds_only = str(time_saved_image_key).split(".", maxsplit=1)
+                formatted_date_string = datetime.utcfromtimestamp(int(timestamp_without_milliseconds)).strftime("%Y-%m-%d_%Hh%Mm%Ss") + f"-{timestamp_milliseconds_only}millios"
 
-            if isinstance(self.additional_text_to_use_in_filenames, str) and self.additional_text_to_use_in_filenames.replace(" ", "") != "":
-                # If we have some additional text to use in the filenames, we remove the potential special chars from the text to make sure windows do not explode
-                formatted_date_string = f"{''.join(char for char in self.additional_text_to_use_in_filenames if char.isalnum())}_{formatted_date_string}"
+                if isinstance(self.additional_text_to_use_in_filenames, str) and self.additional_text_to_use_in_filenames.replace(" ", "") != "":
+                    # If we have some additional text to use in the filenames, we remove the potential special chars from the text to make sure windows do not explode
+                    formatted_date_string = f"{''.join(char for char in self.additional_text_to_use_in_filenames if char.isalnum())}_{formatted_date_string}"
 
-            if isinstance(saved_images_dict, dict):
-                if self.KEY_UNPROCESSED in saved_images_dict.keys():
-                    unprocessed_image_object = saved_images_dict[self.KEY_UNPROCESSED]
-                    if isinstance(unprocessed_image_object, Image.Image):
-                        unprocessed_image_filename = f"{formatted_date_string}_unprocessed.jpg"
-                        unprocessed_image_object.save(os.path.join(self.get_and_make_dir_to_save_images_for_current_date(), unprocessed_image_filename))
+                if isinstance(saved_images_dict, dict):
+                    if self.KEY_UNPROCESSED in saved_images_dict.keys():
+                        unprocessed_image_object = saved_images_dict[self.KEY_UNPROCESSED]
+                        if isinstance(unprocessed_image_object, Image.Image):
+                            unprocessed_image_filename = f"{formatted_date_string}_unprocessed.jpg"
+                            unprocessed_image_object.save(os.path.join(self.get_and_make_dir_to_save_images_for_current_date(), unprocessed_image_filename))
 
-                if self.KEY_GENERATED in saved_images_dict.keys():
-                    generated_image_object = saved_images_dict[self.KEY_GENERATED]
-                    if isinstance(generated_image_object, Image.Image):
-                        generated_image_filename = f"{formatted_date_string}_generated.jpg"
-                        generated_image_object.save(os.path.join(self.get_and_make_dir_to_save_images_for_current_date(), generated_image_filename))
+                    if self.KEY_GENERATED in saved_images_dict.keys():
+                        generated_image_object = saved_images_dict[self.KEY_GENERATED]
+                        if isinstance(generated_image_object, Image.Image):
+                            generated_image_filename = f"{formatted_date_string}_generated.jpg"
+                            generated_image_object.save(os.path.join(self.get_and_make_dir_to_save_images_for_current_date(), generated_image_filename))
 
-        self.last_images.clear()
-        # After that the last images have been saved, we clear the dict, to not potentially
-        # save the same image twice (in particular if the mode save all images is activated)
+            self.last_images.clear()
+            # After that the last images have been saved, we clear the dict, to not potentially
+            # save the same image twice (in particular if the mode save all images is activated)
