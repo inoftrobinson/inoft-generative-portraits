@@ -72,7 +72,7 @@ def set_need_to_save_pictures(channel_id: str, new_value: bool):
     try:
         if new_value is False:
             response = requests.delete(f"{API_URL_GET_SAVE_PICTURES}?channel_id={channel_id}")
-            print(response) 
+            print(response)
 
         elif new_value is True:
             response = requests.post(f"{API_URL_GET_SAVE_PICTURES}?channel_id={channel_id}")
@@ -103,7 +103,7 @@ class ApiListener(threading.Thread):
         while True:
             style_name_has_changed, current_selected_style_type_or_name,\
             need_to_save_pictures, additional_text_to_use_in_filenames = get_channel_infos(channel_id=self.channel_id_to_check, device_id=self.device_id)
-            if style_name_has_changed:
+            if style_name_has_changed and self.parent_networkSystem.imageGen is not None:
                 print(f"Style name has changed and is now : {current_selected_style_type_or_name}")
                 self.parent_networkSystem.imageGen.current_selected_style_type_or_name = current_selected_style_type_or_name
                 self.parent_networkSystem.imageGen.has_style_type_just_changed = True

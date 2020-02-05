@@ -40,6 +40,8 @@ class NetworkSystem:
 
         if not activate_source_sender_result_receiver:
             self.imageGen = ImageGeneration()
+        else:
+            self.imageGen = None
         self.imagesSaving = ImagesSavingHandlers()
 
     def start_network_loop(self):
